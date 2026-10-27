@@ -23,7 +23,13 @@ from mcp.server.lowlevel import Server
 import mcp.server.stdio
 
 
+def _is_local(host: str) -> bool:
+    return host in ("localhost", "127.0.0.1", "::1") or host.endswith(".local")
+
+
 def _config() -> tuple[str, str]:
+    from urllib.parse import urlparse
+
     url = os.environ.get("ODIN_MCP_URL", "").strip()
     token = os.environ.get("ODIN_API_TOKEN", "").strip()
     if not url:
@@ -32,6 +38,21 @@ def _config() -> tuple[str, str]:
         _die("Falta ODIN_API_TOKEN (crea un token en Odin → Administración → API Tokens).")
     if not token.startswith("odin_"):
         _die("ODIN_API_TOKEN no parece un token de Odin (debe empezar con 'odin_').")
+
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        _die("ODIN_MCP_URL debe ser http(s).")
+    # Seguridad: el token viaja en el header. Fuera de localhost se EXIGE HTTPS
+    # para no enviarlo en claro. Se puede forzar con ODIN_ALLOW_INSECURE=1 (solo
+    # para labs internos; desaconsejado).
+    host = (parsed.hostname or "").lower()
+    if parsed.scheme == "http" and not _is_local(host):
+        if os.environ.get("ODIN_ALLOW_INSECURE", "").strip() not in ("1", "true", "yes"):
+            _die(
+                "ODIN_MCP_URL usa HTTP hacia un host remoto: el token viajaría en "
+                "claro. Usa HTTPS, o pon ODIN_ALLOW_INSECURE=1 bajo tu propio riesgo."
+            )
+
     if not url.endswith("/"):
         url += "/"  # el endpoint MCP vive en /mcp/
     return url, token
@@ -69,6 +90,14 @@ async def _run() -> None:
                 await server.run(r, w, opts)
 
 
+def _redact(text: str) -> str:
+    """Nunca dejar que un token aparezca en logs/mensajes de error."""
+    tok = os.environ.get("ODIN_API_TOKEN", "").strip()
+    if tok and tok in text:
+        text = text.replace(tok, "odin_***redacted***")
+    return text
+
+
 def main() -> None:
     """Entry point: `mcp-odin`."""
     try:
@@ -76,7 +105,7 @@ def main() -> None:
     except KeyboardInterrupt:
         pass
     except Exception as exc:  # fallo de conexión/auth → mensaje claro, no stacktrace
-        _die(f"No se pudo conectar al MCP de Odin: {exc}")
+        _die(_redact(f"No se pudo conectar al MCP de Odin: {exc}"))
 
 
 if __name__ == "__main__":

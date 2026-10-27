@@ -76,6 +76,28 @@ futuro aparece sin actualizar este cliente. Hoy:
 Si tu token no cubre un scope/app, la tool responde con un mensaje de acceso
 denegado (no filtra datos).
 
+## Seguridad
+
+Este cliente sigue el mismo modelo de mínimo privilegio que el MCP de Supabase:
+
+- **Token de mínimo privilegio.** Crea el token con el preset *Solo lectura* y
+  **solo** las apps que necesites. El token nunca puede más que tu usuario:
+  sus permisos son un subconjunto de tu rol y de tus apps asignadas. El servidor
+  re-valida en cada llamada (token no revocado/expirado, usuario activo).
+- **Solo lectura.** Las tools no modifican nada en Odin ni en AWS/Checkpoint.
+- **HTTPS obligatorio fuera de localhost.** El token viaja en el header
+  `Authorization`; el cliente **rechaza** enviarlo por HTTP a un host remoto.
+  Solo para labs internos puedes forzarlo con `ODIN_ALLOW_INSECURE=1` (bajo tu
+  propio riesgo).
+- **El token nunca se registra.** Los mensajes de error lo redactan.
+- **Un token por persona/servicio.** No compartas tokens entre usuarios; así la
+  trazabilidad (`last_used_at`) y la revocación son por token.
+- **Caducidad.** Todos los tokens expiran. Rota por antigüedad; revoca los que
+  no uses desde la UI de Odin.
+- **Prompt injection.** Como con cualquier MCP, revisa lo que el agente hace con
+  los datos. El servidor devuelve solo campos de inventario (nunca secretos,
+  api keys ni hashes), pero el contenido es dato no confiable para el modelo.
+
 ## Cómo se mantiene actualizado
 
 El servidor MCP es la fuente de verdad: cuando Odin se despliega con tools
