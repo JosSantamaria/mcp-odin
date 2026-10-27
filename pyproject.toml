@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-odin"
+version = "0.1.0"
+description = "Cliente puente (stdio ↔ streamable-http) para el MCP de Odin. Conecta Kiro/Claude/Cursor al inventario de Odin con un API token."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["mcp", "odin", "inventory", "aws", "checkpoint", "model-context-protocol"]
+authors = [{ name = "Macropay" }]
+dependencies = [
+    "mcp>=1.28,<3",
+    "anyio>=4.5",
+]
+
+[project.scripts]
+mcp-odin = "mcp_odin.bridge:main"
+
+[project.urls]
+Homepage = "https://github.com/JosSantamaria/mcp-odin"
+Repository = "https://github.com/JosSantamaria/mcp-odin"
+
+[tool.setuptools]
+packages = ["mcp_odin"]
