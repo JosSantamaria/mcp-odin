@@ -32,8 +32,9 @@ pip install git+https://github.com/JosSantamaria/mcp-odin
 Dos variables de entorno (cada usuario las suyas):
 
 ```bash
-export ODIN_MCP_URL="https://odin.macropay.mx/mcp/"   # o el de QA
-export ODIN_API_TOKEN="odin_xxxxxxxx..."              # tu token personal
+# Sustituye por la URL de tu instancia de Odin (pídela a tu admin).
+export ODIN_MCP_URL="https://odin.<instance>.<domain>.tld/mcp/"
+export ODIN_API_TOKEN="odin_xxxxxxxx..."   # tu token personal
 ```
 
 ## Registrar en tu asistente
@@ -49,7 +50,7 @@ En el `mcp.json` del cliente (en Kiro: `.kiro/settings/mcp.json`):
       "command": "uvx",
       "args": ["--from", "git+https://github.com/JosSantamaria/mcp-odin", "mcp-odin"],
       "env": {
-        "ODIN_MCP_URL": "https://odin.macropay.mx/mcp/",
+        "ODIN_MCP_URL": "https://odin.<instance>.<domain>.tld/mcp/",
         "ODIN_API_TOKEN": "odin_xxxxxxxx..."
       }
     }

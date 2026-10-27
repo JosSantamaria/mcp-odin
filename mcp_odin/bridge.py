@@ -6,7 +6,7 @@ header Authorization. Las tools remotas se exponen tal cual: lo que Odin ofrezca
 hoy o mañana aparece sin cambiar este cliente.
 
 Config por entorno (ningún secreto en el código):
-    ODIN_MCP_URL    URL del MCP de Odin, p.ej. https://odin.macropay.mx/mcp/
+    ODIN_MCP_URL    URL del MCP de Odin, p.ej. https://odin.<instance>.<domain>.tld/mcp/
     ODIN_API_TOKEN  API token del usuario (odin_...), creado en la UI de Odin.
 """
 
@@ -33,7 +33,7 @@ def _config() -> tuple[str, str]:
     url = os.environ.get("ODIN_MCP_URL", "").strip()
     token = os.environ.get("ODIN_API_TOKEN", "").strip()
     if not url:
-        _die("Falta ODIN_MCP_URL (p.ej. https://odin.macropay.mx/mcp/).")
+        _die("Falta ODIN_MCP_URL (p.ej. https://odin.<instance>.<domain>.tld/mcp/).")
     if not token:
         _die("Falta ODIN_API_TOKEN (crea un token en Odin → Administración → API Tokens).")
     if not token.startswith("odin_"):
